@@ -65,6 +65,12 @@ defined in linker script */
   .type  Reset_Handler, %function
 Reset_Handler:  
 
+/*
+ * Bootloader expects a stack address in normal RAM (0x20000000), so _estack is
+ * used in g_pfnVectors and we adjust to stack value after the jump here.
+ */
+ ldr sp, =_ccm_stack
+
 /* Copy the data segment initializers from flash to SRAM */  
   movs  r1, #0
   b  LoopCopyDataInit
@@ -81,8 +87,26 @@ LoopCopyDataInit:
   adds  r2, r0, r1
   cmp  r2, r3
   bcc  CopyDataInit
+  movs  r1, #0
+  b  LoopCopyCCMInit
+
+/* Copy the CCM segment initializers from flash to SRAM */
+CopyCCMInit:
+  ldr  r3, =_siccm
+  ldr  r3, [r3, r1]
+  str  r3, [r0, r1]
+  adds  r1, r1, #4
+
+LoopCopyCCMInit:
+  ldr  r0, =_sccm
+  ldr  r3, =_eccm
+  adds  r2, r0, r1
+  cmp  r2, r3
+  bcc  CopyCCMInit
+
   ldr  r2, =_sbss
   b  LoopFillZerobss
+
 /* Zero fill the bss segment. */  
 FillZerobss:
   movs  r3, #0
@@ -92,7 +116,24 @@ LoopFillZerobss:
   ldr  r3, = _ebss
   cmp  r2, r3
   bcc  FillZerobss
+  
+/* Zero fill the cmmz segment. */
+  ldr  r2, = _sccmz
+FillZeroCCMZ:
+  movs  r3, #0
+  str  r3, [r2], #4
 
+LoopFillZeroCCMZ:
+  ldr  r3, = _eccmz
+  cmp  r2, r3
+  bcc  FillZeroCCMZ
+  
+/*FPU settings*/
+ ldr     r0, =0xE000ED88           /* Enable CP10,CP11 */
+ ldr     r1,[r0]
+ orr     r1,r1,#(0xF << 20)
+ str     r1,[r0]
+	
 /* Call the clock system intitialization function.*/
   bl  SystemInit   
 /* Call static constructors */
@@ -101,6 +142,7 @@ LoopFillZerobss:
   bl  main
   bx  lr    
 .size  Reset_Handler, .-Reset_Handler
+
 
 /**
  * @brief  This is the code that gets called when the processor receives an 
