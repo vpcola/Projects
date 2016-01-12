@@ -1,11 +1,11 @@
 /**
   ******************************************************************************
   * <h2><center>&copy; COPYRIGHT 2012 Embest Tech. Co., Ltd.</center></h2>
-  * @file    stm32f4_discovery_debug.h
+  * @file    bmp.h 
   * @author  CMP Team
   * @version V1.0.0
   * @date    28-December-2012
-  * @brief   Header for stm32f4_discovery_debug.c module     
+  * @brief   Header for bmp.c module.                     
   ******************************************************************************
   * @attention
   *
@@ -16,54 +16,16 @@
   * OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE CODING INFORMATION
   * CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   ******************************************************************************
-  */   
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F4_DISCOVERY_DEBUG_H
-#define __STM32F4_DISCOVERY_DEBUG_H
-
-#ifdef __cplusplus
- extern "C" {
-#endif
-                                              
+  */
+#ifndef __BMP_H
+#define __BMP_H
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 
+/* Exported macro ------------------------------------------------------------*/
+/* Exported functions ------------------------------------------------------- */
+int32_t Capture_Image_TO_Bmp  (void);
+void    init_picture_count    (void);
 
-/** @addtogroup Utilities
-  * @{
-  */
-  
-/** @addtogroup STM32F4_DISCOVERY
-  * @{
-  */
-/** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_Exported_Functions
-  * @{
-  */
-void STM32f4_Discovery_Debug_Init(void);
-int Get_Peek_Key(void);
-int Send_Char(int c);
-int Get_Char(void);
-
-/**
-  * @}
-  */
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* __STM32F4_DISCOVERY_DEBUG_H */
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */
-
- 
-
-/******************** COPYRIGHT 2012 Embest Tech. Co., Ltd.*****END OF FILE****/
+#endif /* #define __BMP_H */
+/******************* COPYRIGHT 2012 Embest Tech. Co., Ltd. *****END OF FILE****/

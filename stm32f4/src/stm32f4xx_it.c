@@ -1,9 +1,9 @@
 /**
   ******************************************************************************
-  * @file    LCD_35T/src/stm32f4xx_it.c 
+  * @file    OV9655_Camera/src/stm32f2xx_it.c 
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    30-September-2011
+  * @date    18-April-2011
   * @brief   Main Interrupt Service Routines.
   *          This file provides template for all exceptions handler and 
   *          peripherals interrupt service routine.
@@ -17,11 +17,36 @@
   * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
   * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   *
-  * <h2><center>&copy; Portions COPYRIGHT 2011 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  ******************************************************************************
+  */ 
+/**
+  ******************************************************************************
+  * <h2><center>&copy; Portions COPYRIGHT 2012 Embest Tech. Co., Ltd.</center></h2>
+  * @file    stm32f2xx_it.c 
+  * @author  CMP Team
+  * @version V1.0.0
+  * @date    28-December-2012
+  * @brief   Main Interrupt Service Routines.
+  *          This file provides template for all exceptions handler and 
+  *          peripherals interrupt service routine.                     
+  *          Modified to support the STM32F4DISCOVERY, STM32F4DIS-BB, STM32F4DIS-CAM
+  *          and STM32F4DIS-LCD modules. 
+  ******************************************************************************
+  * @attention
+  *
+  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+  * TIME. AS A RESULT, Embest SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT
+  * OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING FROM THE CONTENT
+  * OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE CODING INFORMATION
+  * CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
+#include "main.h"
+#include "stm32f4_discovery_sdio_sd.h"
 
 /** @addtogroup STM32F4xx_StdPeriph_Examples
   * @{
@@ -35,6 +60,7 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+extern uint8_t KeyPressFlg;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -137,6 +163,48 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
+  TimingDelay_Decrement();
+}
+
+/******************************************************************************/
+/*                 STM32F4xx Peripherals Interrupt Handlers                   */
+/******************************************************************************/
+/**
+  * @brief  This function handles SDIO global interrupt request.
+  * @param  None
+  * @retval None
+  */
+void SDIO_IRQHandler(void)
+{
+  /* Process All SDIO Interrupt Sources */
+  SD_ProcessIRQSrc();
+}
+
+/**
+  * @brief  This function handles DMA2 Stream3 or DMA2 Stream6 global interrupts
+  *         requests.
+  * @param  None
+  * @retval None
+  */
+void SD_SDIO_DMA_IRQHANDLER(void)
+{
+  /* Process DMA2 Stream3 or DMA2 Stream6 Interrupt Sources */
+  SD_ProcessDMAIRQ();
+}
+
+/**
+  * @brief  This function handles External line 0 interrupt request.
+  * @param  None
+  * @retval None
+  */
+void EXTI0_IRQHandler(void)
+{
+  if(EXTI_GetITStatus(EXTI_Line0) != RESET)
+  {
+    /* Clear the EXTI line 0 pending bit */
+    EXTI_ClearITPendingBit(EXTI_Line0);
+		KeyPressFlg = 1;
+  }
 }
 
 /******************************************************************************/
@@ -163,4 +231,4 @@ void SysTick_Handler(void)
   * @}
   */ 
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/*********** Portions COPYRIGHT 2012 Embest Tech. Co., Ltd.*****END OF FILE****/

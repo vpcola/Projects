@@ -1,46 +1,60 @@
 /*
-*	Linker script file for STM32F407VGT6
-*	1024 kB FLASH, 112kB RAM
-*   
-*   Julian Schmidt 2013
-*
-*	build after tutorial found on 
-*	http://developers.stf12.net/cpp-demo/gcc-linker-script-and-stm32-a-tutorial
-*	http://www.embedds.com/programming-stm32-discovery-using-gnu-tools-linker-script/
-*	http://hertaville.com/2012/06/29/a-sample-linker-script/
+*****************************************************************************
+**
+**  File        : stm32_flash.ld
+**
+**  Abstract    : Linker script for STM32F407VG Device with
+**                1024KByte FLASH, 192KByte RAM
+**
+**                Set heap size, stack size and stack location according
+**                to application requirements.
+**
+**                Set memory bank area and size if external memory is used.
+**
+**  Target      : STMicroelectronics STM32
+**
+**  Environment : Atollic TrueSTUDIO(R)
+**
+**  Distribution: The file is distributed “as is,” without any warranty
+**                of any kind.
+**
+**  (c)Copyright Atollic AB.
+**  You may use this file as-is or modify it according to the needs of your
+**  project. Distribution of this file (unmodified or modified) is not
+**  permitted. Atollic AB permit registered Atollic TrueSTUDIO(R) users the
+**  rights to distribute the assembled, compiled & linked contents of this
+**  file as part of an application binary file, provided that it is built
+**  using the Atollic TrueSTUDIO(R) toolchain.
+**
+*****************************************************************************
 */
 
 /* Entry Point */
 ENTRY(Reset_Handler)
 
+/* Highest address of the user mode stack */
+_estack = 0x20020000;    /* end of 128K RAM on AHB bus*/
+
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0;      /* required amount of heap  */
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
-/* memory areas */
+/* Specify the memory areas */
 MEMORY
 {
- /* FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1024K*/
- /*we have to reserve the first sector (16k) for the bootloader*/ 
-  FLASH (rx)	  : ORIGIN = 0x08004000, LENGTH = 1008K
- 
-  CCMRAM (xrw) : ORIGIN = 0x10000000, LENGTH = 64K
-  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 112K
-  
-  MEMORY_B1 ( rx ) : ORIGIN = 0x60000000 , LENGTH = 0K
+  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1024K
+  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 128K
+  CCMRAM (xrw)    : ORIGIN = 0x10000000, LENGTH = 64K  
+  MEMORY_B1 (rx)  : ORIGIN = 0x60000000, LENGTH = 0K
 }
 
-/* _estack is used for bootloader, but actual application uses _ccm_stack. See
- * startup_stm32f4xx.S for details
- */
-_estack = 0x2001c000;    /* end of 112K RAM */
-_ccm_stack = ORIGIN(CCMRAM) + LENGTH(CCMRAM);
-
+__heap_start__ = __bss_end__;
+__heap_end__   = _estack - _Min_Stack_Size;
 
 /* Define output sections */
 SECTIONS
 {
-  /* first the startup code */
+  /* The startup code goes first into FLASH */
   .isr_vector :
   {
     . = ALIGN(4);
@@ -48,7 +62,7 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
-  /*  section where program code will be stored (Flash)*/
+  /* The program code and other data goes into FLASH */
   .text :
   {
     . = ALIGN(4);
@@ -65,6 +79,7 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
+    _exit = .;
   } >FLASH
 
 
@@ -74,10 +89,7 @@ SECTIONS
       *(.ARM.exidx*)
       __exidx_end = .;
     } >FLASH
-	
 
-	/*These are the extra sections in a C++ linker script (from STM32):*/
-	
   .preinit_array     :
   {
     PROVIDE_HIDDEN (__preinit_array_start = .);
@@ -131,15 +143,28 @@ SECTIONS
   } >RAM
 
   /* User_heap_stack section, used to check that there is enough RAM left */
-  ._user_heap :
+  ._user_heap_stack :
   {
     . = ALIGN(4);
     PROVIDE ( end = . );
     PROVIDE ( _end = . );
     . = . + _Min_Heap_Size;
+    . = . + _Min_Stack_Size;
     . = ALIGN(4);
   } >RAM
 
+  /* CCM Ram Area */
+  .ccmram (NOLOAD) :
+  {
+    . = ALIGN(4);
+    _sccmram = .; /* define a global symbol at ccmram start */
+    *(.ccmram)
+    *(.ccmram*)
+    
+    . = ALIGN(4);
+    _eccmram = .; /* define a global symbol at ccmram end */
+  } >CCMRAM
+  
   /* MEMORY_bank1 section, code must be located here explicitly            */
   /* Example: extern int foo(void) __attribute__ ((section (".mb1text"))); */
   .memory_b1_text :
@@ -149,46 +174,6 @@ SECTIONS
     *(.mb1rodata)      /* read-only data (constants) */
     *(.mb1rodata*)
   } >MEMORY_B1
-
-  /* Setup CCM memory
-   * There are mutliple regions setup for use:
-   *  ccm :: pre-loaded from flash by startup code (expected use: state)
-   *  ccmz :: filled with zeroes at startup, variables must be initialized by application
-   *  ccmstack :: application stack
-   */
-  . = _sidata + SIZEOF(.data);
-  _siccm = .;
-
-  /* CCM load area */
-  .ccm : AT(_siccm)
-  {
-    _sccm = .;
-    . = ALIGN(4);
-    *(.ccm)
-    . = ALIGN(4);
-    _eccm = .;
-  } > CCMRAM
-
-  /* CCMZ area */
-  .ccmz (NOLOAD) :
-  {
-    _sccmz = .;
-    . = ALIGN(4);
-    *(.ccmz)
-    . = ALIGN(4);
-    _eccmz = .;
-  } > CCMRAM
-
-  /* CCM stack */
-  .ccmstack (NOLOAD) :
-  {
-    _sccmstack = .;
-    *(.stack*)
-  } > CCMRAM
-
-  /* Check we didn't overflow CCM */
-  ASSERT(_sccmstack + _Min_Stack_Size <= _ccm_stack, "CCM overflow")
-
 
   /* Remove information from the standard libraries */
   /DISCARD/ :

@@ -40,6 +40,7 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 
+#if 0
 #ifdef __GNUC__
   /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
      set to 'Yes') calls __io_putchar() */
@@ -47,6 +48,7 @@
 #else
   #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #endif /* __GNUC__ */
+#endif
 
 /**
   * @brief  Display Init (LCD or/and USART)
@@ -95,7 +97,8 @@ int Get_Peek_Key(void)
   * @param  None
   * @retval None
   */
-PUTCHAR_PROTOTYPE
+//PUTCHAR_PROTOTYPE
+int Send_Char(int ch)
 {
   /* Place your implementation of fputc here */
   /* e.g. write a character to the USART */
@@ -106,6 +109,15 @@ PUTCHAR_PROTOTYPE
   {}
 
   return ch;
+}
+
+int Get_Char(void)
+{
+  /* Loop untill data is ready */
+  while(USART_GetFlagStatus(EVAL_COM1, USART_FLAG_RXNE) == RESET)
+  //while ((USART1->SR & USART_FLAG_RXNE) == (uint16_t)RESET)
+  {}
+  return (int) USART_ReceiveData(EVAL_COM1);
 }
 
 
