@@ -8,7 +8,7 @@ vpath %.c src src/peripherals
 CFLAGS  = -g -O2 -Wall
 CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
-CFLAGS += -ffreestanding -nostdlib 
+CFLAGS += -ffreestanding #-nostdlib 
 CFLAGS += -I../conf -Iinc -Iinc/core -Iinc/peripherals
 
 SRCS = misc.c stm32f4xx_dma.c stm32f4xx_rcc.c stm32f4xx_adc.c \

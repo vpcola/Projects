@@ -40,6 +40,9 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "stm32f4xx.h"
 #include "stm32f4_discovery.h"
 #include "stm32f4_discovery_lcd.h"
@@ -79,6 +82,8 @@ void EXTILine0_Config(void);
 void LIS302DL_Reset(void);
 #endif
 
+extern uint32_t sysfree();
+
 /* Private functions ---------------------------------------------------------*/
 /**
   * @brief  Main program.
@@ -87,6 +92,9 @@ void LIS302DL_Reset(void);
   */
 int main(void)
 {
+  char line[100];
+  char * test;
+
   /*!< At this stage the microcontroller clock setting is already configured, 
        this is done through SystemInit() function which is called from startup
        file (startup_stm32f4xx.s) before to branch to application main.
@@ -111,6 +119,14 @@ int main(void)
   DCMI_Control_IO_Init();
 
   LCD_DisplayStringLine(LINE(2), (uint8_t *) "   Camera Init..");
+  sprintf(line,"sys free: %ld", sysfree());
+  LCD_DisplayStringLine(LINE(3), (uint8_t *) line);
+  test = malloc(500);
+  sprintf(line, "sysfree m: %ld", sysfree());
+  LCD_DisplayStringLine(LINE(4), (uint8_t *) line);
+  if (test) free(test);
+  sprintf(line, "sysfree f: %ld", sysfree());
+  LCD_DisplayStringLine(LINE(5), (uint8_t *) line);
 		   
   /* OV9655 Camera Module configuration */
   if (DCMI_OV9655Config() == 0x00)

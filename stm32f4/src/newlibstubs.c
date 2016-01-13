@@ -14,6 +14,7 @@ extern int errno;
 
 // extern uint32_t __heap_end__;
 
+static char * heap_end;
 
 /*
  environ
@@ -124,7 +125,7 @@ int _lseek(int file, int ptr, int dir) {
  */
 caddr_t _sbrk(int incr) {
     extern char _ebss; // Defined by the linker
-    static char *heap_end;
+    //static char * heap_end;
     char *prev_heap_end;
 
     if (heap_end == 0) {
@@ -228,4 +229,21 @@ int _write(int file, char *ptr, int len)
   }
 
   return len;
+}
+
+uint32_t sysfree()
+{
+  // Variable defined by the linker
+  //extern char __heap_end__;
+ // extern char __heap_start__;
+  extern char _ebss;
+
+  if (heap_end == 0) {
+      heap_end = &_ebss;
+  }
+
+  char * stack = (char *) __get_MSP();
+  //return (uint32_t) ( stack - heap_end );
+  //return (uint32_t) ((&__heap_end__) - (&__heap_start__));
+  return (uint32_t) ( ((char *) stack) - heap_end  ); //(&__heap_start__));
 }

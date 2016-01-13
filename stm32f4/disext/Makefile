@@ -8,7 +8,7 @@ vpath %.c src
 CFLAGS  = -g -O2 -Wall
 CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
-CFLAGS += -ffreestanding -nostdlib 
+CFLAGS += -ffreestanding #-nostdlib 
 CFLAGS += -I../inc -Iinc -I../lib/inc -I../lib/inc/core -I../lib/inc/peripherals
 
 #SRCS  = stm32f4_discovery.c
