@@ -26,12 +26,14 @@ vpath %.c src
 vpath %.a lib
 vpath %.a disext
 vpath %.a FatFs
+vpath %.a FreeRTOS
 
 ROOT=$(shell pwd)
 
 CFLAGS += -Iinc -Ilib -Ilib/inc -Idisext/inc
 CFLAGS += -IFatFs
 CFLAGS += -Ilib/inc/core -Ilib/inc/peripherals 
+CFLAGS += -IFreeRTOS/CMSIS_RTOS -IFreeRTOS/include -IFreeRTOS/portable/GCC/ARM_CM4F
 
 SRCS += lib/startup_stm32f4xx.s # add startup file to build
 
@@ -39,9 +41,9 @@ OBJS = $(SRCS:.c=.o)
 
 ###################################################
 
-.PHONY: lib disext FatFs proj
+.PHONY: lib disext FatFs FreeRTOS proj
 
-all: lib disext FatFs proj
+all: lib disext FatFs FreeRTOS proj
 
 lib:
 	$(MAKE) -C lib
@@ -51,6 +53,9 @@ disext:
 	
 FatFs:
 	$(MAKE) -C FatFs	
+
+FreeRTOS:
+	$(MAKE) -C FreeRTOS
 
 proj: 	$(PROJ_NAME).elf
 
@@ -64,6 +69,8 @@ $(PROJ_NAME).elf: $(SRCS)
 clean:
 	$(MAKE) -C lib clean
 	$(MAKE) -C disext clean
+	$(MAKE) -C FatFs clean
+	$(MAKE) -C FreeRTOS clean
 	rm -f $(PROJ_NAME).elf
 	rm -f $(PROJ_NAME).hex
 	rm -f $(PROJ_NAME).bin

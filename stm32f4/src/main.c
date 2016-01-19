@@ -43,7 +43,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include "stm32f4xx.h"
+
+#if 0
+#include "FreeRTOS.h"
+#include "cmsis_os.h"
+#endif
+
 #include "stm32f4_discovery.h"
 #include "stm32f4_discovery_lcd.h"
 // #include "stm32f4_discovery_lis302dl.h"
@@ -83,6 +90,8 @@ void LIS302DL_Reset(void);
 #endif
 
 extern uint32_t sysfree();
+void test_FPU_test(void* p);
+void capture_Loop(void * p);
 
 /* Private functions ---------------------------------------------------------*/
 /**
@@ -94,6 +103,7 @@ int main(void)
 {
   char line[100];
   char * test;
+  //uint8_t ret1, ret2;
 
   /*!< At this stage the microcontroller clock setting is already configured, 
        this is done through SystemInit() function which is called from startup
@@ -118,68 +128,102 @@ int main(void)
 
   DCMI_Control_IO_Init();
 
+
   LCD_DisplayStringLine(LINE(2), (uint8_t *) "   Camera Init..");
   sprintf(line,"sys free: %ld", sysfree());
   LCD_DisplayStringLine(LINE(3), (uint8_t *) line);
-  test = malloc(500);
-  sprintf(line, "sysfree m: %ld", sysfree());
-  LCD_DisplayStringLine(LINE(4), (uint8_t *) line);
-  if (test) free(test);
-  sprintf(line, "sysfree f: %ld", sysfree());
-  LCD_DisplayStringLine(LINE(5), (uint8_t *) line);
-		   
-  /* OV9655 Camera Module configuration */
-  if (DCMI_OV9655Config() == 0x00)
+
+#if 0
+  LCD_DisplayStringLine(LINE(5), (uint8_t *) "Creating Tasks...");
+
+
+  // Create a task
+  ret1 = xTaskCreate(test_FPU_test, "FPU", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+  // Create the capture image/display loop
+  ret2 = xTaskCreate(capture_Loop, "CapLoop", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+
+  if ((ret1 == pdTRUE) && (ret2 == pdTRUE))
+    vTaskStartScheduler();  // should never return
+  else
   {
-    LCD_DisplayStringLine(LINE(2), (uint8_t *) "                ");
-    LCD_SetDisplayWindow(0, 0, 320, 240);
-    LCD_WriteRAM_Prepare();
-
-    /* Start Image capture and Display on the LCD *****************************/
-    /* Enable DMA transfer */
-    DMA_Cmd(DMA2_Stream1, ENABLE);
-
-    /* Enable DCMI interface */
-    DCMI_Cmd(ENABLE); 
-
-    /* Start Image capture */ 
-    DCMI_CaptureCmd(ENABLE);   
-
-    /*init the picture count*/
-    init_picture_count();
-
-    KeyPressFlg = 0;
-    while (1)
-    {
-      /* Insert 100ms delay */
-      Delay(100);
-
-      if (KeyPressFlg) {
-        KeyPressFlg = 0;
-        /* press user KEY take a photo */
-        if (capture_Flag == ENABLE) {
-          DCMI_CaptureCmd(DISABLE);
-          capture_Flag = DISABLE;
-          Capture_Image_TO_Bmp();
-          LCD_SetDisplayWindow(0, 0, 320, 240);
-          LCD_WriteRAM_Prepare();
-          DCMI_CaptureCmd(ENABLE);
-          capture_Flag = ENABLE;
-        }			
-      }
-    }  
-  } else {
-    LCD_SetTextColor(LCD_COLOR_RED);
-
-    LCD_DisplayStringLine(LINE(2), (uint8_t*)"Camera Init.. fails");
-    LCD_DisplayStringLine(LINE(4), (uint8_t*)"Check the Camera HW ");
-    LCD_DisplayStringLine(LINE(5), (uint8_t*)"  and try again ");
-
-    /* Go to infinite loop */
-    while (1);      
+	  // TODO: Indicate error startup.
   }
+#endif
+
+  capture_Loop(NULL);
+
+  while(1){} // We should not get here ...
+
 }
 
+#if 0
+void test_FPU_test(void* p)
+{
+    float ff = 1.0f;
+    printf("Start FPU test task.\n");
+    for (;;) {
+        float s = sinf(ff);
+        ff += s;
+        // TODO some other test
+        vTaskDelay(1000);
+    }
+    vTaskDelete(NULL);
+
+}
+#endif
+
+void capture_Loop(void * p)
+{
+	  /* OV9655 Camera Module configuration */
+	  if (DCMI_OV9655Config() == 0x00)
+	  {
+	    LCD_DisplayStringLine(LINE(2), (uint8_t *) "                ");
+	    LCD_SetDisplayWindow(0, 0, 320, 240);
+	    LCD_WriteRAM_Prepare();
+
+	    /* Start Image capture and Display on the LCD *****************************/
+	    /* Enable DMA transfer */
+	    DMA_Cmd(DMA2_Stream1, ENABLE);
+
+	    /* Enable DCMI interface */
+	    DCMI_Cmd(ENABLE);
+
+	    /* Start Image capture */
+	    DCMI_CaptureCmd(ENABLE);
+
+	    /*init the picture count*/
+	    init_picture_count();
+
+	    KeyPressFlg = 0;
+	    while (1)
+	    {
+	      /* Insert 100ms delay */
+	      //vTaskDelay(pdMS_TO_TICKS(100));
+	      Delay(100);
+
+	      if (KeyPressFlg) {
+	        KeyPressFlg = 0;
+	        /* press user KEY take a photo */
+	        if (capture_Flag == ENABLE) {
+	          DCMI_CaptureCmd(DISABLE);
+	          capture_Flag = DISABLE;
+	          Capture_Image_TO_Bmp();
+	          LCD_SetDisplayWindow(0, 0, 320, 240);
+	          LCD_WriteRAM_Prepare();
+	          DCMI_CaptureCmd(ENABLE);
+	          capture_Flag = ENABLE;
+	        }
+	      }
+	    }
+	  } else
+	  {
+	    LCD_SetTextColor(LCD_COLOR_RED);
+
+	    LCD_DisplayStringLine(LINE(2), (uint8_t*)"Camera Init.. fails");
+	    LCD_DisplayStringLine(LINE(4), (uint8_t*)"Check the Camera HW ");
+	    LCD_DisplayStringLine(LINE(5), (uint8_t*)"  and try again ");
+	  }
+}
 /**
   * @brief  Configures all needed resources (I2C, DCMI and DMA) to interface with
   *         the OV9655 camera module
@@ -472,6 +516,49 @@ void TimingDelay_Decrement(void)
     TimingDelay--;
   }
 }
+
+// FreeRTOS hooks
+#if 0
+void vApplicationTickHook(void) {
+}
+
+/* vApplicationMallocFailedHook() will only be called if
+ * configUSE_MALLOC_FAILED_HOOK is set to 1 in FreeRTOSConfig.h.  It is a hook
+ * function that will get called if a call to pvPortMalloc() fails.
+ * pvPortMalloc() is called internally by the kernel whenever a task, queue,
+ * timer or semaphore is created.  It is also called by various parts of the
+ * demo application.  If heap_1.c or heap_2.c are used, then the size of the
+ * heap available to pvPortMalloc() is defined by configTOTAL_HEAP_SIZE in
+ * FreeRTOSConfig.h, and the xPortGetFreeHeapSize() API function can be used
+ * to query the size of free heap space that remains (although it does not
+ * provide information on how the remaining heap might be fragmented). */
+void vApplicationMallocFailedHook(void) {
+      taskDISABLE_INTERRUPTS();
+        for(;;);
+}
+
+/* vApplicationIdleHook() will only be called if configUSE_IDLE_HOOK is set
+ * to 1 in FreeRTOSConfig.h.  It will be called on each iteration of the idle
+ * task.  It is essential that code added to this hook function never attempts
+ * to block in any way (for example, call xQueueReceive() with a block time
+ * specified, or call vTaskDelay()).  If the application makes use of the
+ * vTaskDelete() API function (as this demo application does) then it is also
+ * important that vApplicationIdleHook() is permitted to return to its calling
+ * function, because it is the responsibility of the idle task to clean up
+ * memory allocated by the kernel to any task that has since been deleted. */
+void vApplicationIdleHook(void) {
+}
+
+void vApplicationStackOverflowHook(xTaskHandle pxTask, signed char *pcTaskName) {
+      (void) pcTaskName;
+        (void) pxTask;
+          /* Run time stack overflow checking is performed if
+           *      configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
+           *           function is called if a stack overflow is detected. */
+          taskDISABLE_INTERRUPTS();
+            for(;;);
+}
+#endif
 
 #ifdef  USE_FULL_ASSERT
 /**

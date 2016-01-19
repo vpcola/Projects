@@ -284,26 +284,27 @@ void LCD_CtrlLinesConfig(void)
   /* NE3 configuration */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7; 
   GPIO_Init(GPIOD, &GPIO_InitStructure);
-  GPIO_PinAFConfig(GPIOD, GPIO_PinSource10, GPIO_AF_FSMC);
+  //GPIO_PinAFConfig(GPIOD, GPIO_PinSource10, GPIO_AF_FSMC); // VCO Bug
+  GPIO_PinAFConfig(GPIOD, GPIO_PinSource7, GPIO_AF_FSMC);
 
   /* LCD RST configuration */
-  GPIO_InitStructure.GPIO_Pin = LCD_RST_PIN; 
+  GPIO_InitStructure.GPIO_Pin = LCD_RST_PIN;  // GPIO_Pin_3
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
 
-  GPIO_Init(LCD_RST_PORT, &GPIO_InitStructure);
+  GPIO_Init(LCD_RST_PORT, &GPIO_InitStructure); // GPIOD, GPIO_Pin_3
 
    /* LCD pwm configuration */
-  GPIO_InitStructure.GPIO_Pin = LCD_PWM_PIN; 
+  GPIO_InitStructure.GPIO_Pin = LCD_PWM_PIN; // GPIO_Pin_13
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
 
   GPIO_Init(LCD_PWM_PORT, &GPIO_InitStructure);
-  GPIO_SetBits(LCD_PWM_PORT, LCD_PWM_PIN);
+  GPIO_SetBits(LCD_PWM_PORT, LCD_PWM_PIN); // GPIOD, GPIO_Pin_13
 }
 
 /**
