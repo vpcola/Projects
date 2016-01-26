@@ -485,7 +485,6 @@ void xPortPendSVHandler( void )
 	);
 }
 /*-----------------------------------------------------------*/
-extern void TimingDelay_Decrement(void);
 
 void xPortSysTickHandler( void )
 {
@@ -504,8 +503,6 @@ void xPortSysTickHandler( void )
 		}
 	}
 
-    TimingDelay_Decrement();
-         
 	portCLEAR_INTERRUPT_MASK_FROM_ISR( 0 );
         
 }

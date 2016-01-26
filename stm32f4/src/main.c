@@ -46,16 +46,14 @@
 #include <math.h>
 #include "stm32f4xx.h"
 
-#if 0
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
-#endif
 
 #include "stm32f4_discovery.h"
 #include "stm32f4_discovery_lcd.h"
-// #include "stm32f4_discovery_lis302dl.h"
 #include "main.h"
 #include "bmp.h"
+#include "i2c.h"
 #include "dcmi_ov9655.h"
 
 
@@ -73,25 +71,23 @@
 #define FSMC_LCD_ADDRESS    0x60100000
 
 /* Private macro -------------------------------------------------------------*/
+#define FRAMES_TO_SKIP 10 // Process image only every 10 frames
 /* Private variables ---------------------------------------------------------*/
 uint8_t KeyPressFlg = 0;
 __IO uint32_t TimingDelay;
-RCC_ClocksTypeDef RCC_Clocks;
+//RCC_ClocksTypeDef RCC_Clocks;
 EXTI_InitTypeDef   EXTI_InitStructure;
 uint8_t capture_Flag = ENABLE;
-
+SemaphoreHandle_t xSemaphore = NULL;
 /* Private function prototypes -----------------------------------------------*/
 uint8_t DCMI_OV9655Config(void);
 void DCMI_Config(void);
 void I2C1_Config(void);
 void EXTILine0_Config(void);
-#if 0
-void LIS302DL_Reset(void);
-#endif
 
 extern uint32_t sysfree();
-void test_FPU_test(void* p);
 void capture_Loop(void * p);
+void led_Monitor(void * p);
 
 /* Private functions ---------------------------------------------------------*/
 /**
@@ -101,129 +97,140 @@ void capture_Loop(void * p);
   */
 int main(void)
 {
-  char line[100];
-  char * test;
-  //uint8_t ret1, ret2;
+    char line[100];
+    uint8_t ret = pdFALSE;
 
-  /*!< At this stage the microcontroller clock setting is already configured, 
-       this is done through SystemInit() function which is called from startup
-       file (startup_stm32f4xx.s) before to branch to application main.
-       To reconfigure the default setting of SystemInit() function, refer to
-       system_stm32f4xx.c file
-     */
-  /* SysTick end of count event each 10ms */
-  RCC_GetClocksFreq(&RCC_Clocks);
-  SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);
+    /*!< At this stage the microcontroller clock setting is already configured, 
+      this is done through SystemInit() function which is called from startup
+      file (startup_stm32f4xx.s) before to branch to application main.
+      To reconfigure the default setting of SystemInit() function, refer to
+      system_stm32f4xx.c file
+      */
+    /* SysTick end of count event each 10ms */
+    // RCC_GetClocksFreq(&RCC_Clocks);
+    // SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);
+    // STM_EVAL_LEDInit(LED4); 
 
-  // LIS302DL_Reset();
+    /* SET USER Key */
+    /* Configure EXTI Line0 (connected to PA0 pin) in interrupt mode */
+    EXTILine0_Config();
 
-  /* SET USER Key */
-  /* Configure EXTI Line0 (connected to PA0 pin) in interrupt mode */
-  EXTILine0_Config();
+    /* Initialize the LCD */
+    STM32f4_Discovery_LCD_Init();
+    LCD_Clear(LCD_COLOR_WHITE);
+    LCD_SetTextColor(LCD_COLOR_BLUE);
 
-  /* Initialize the LCD */
-  STM32f4_Discovery_LCD_Init();
-  LCD_Clear(LCD_COLOR_WHITE);
-  LCD_SetTextColor(LCD_COLOR_BLUE);
-
-  DCMI_Control_IO_Init();
+    DCMI_Control_IO_Init();
 
 
-  LCD_DisplayStringLine(LINE(2), (uint8_t *) "   Camera Init..");
-  sprintf(line,"sys free: %ld", sysfree());
-  LCD_DisplayStringLine(LINE(3), (uint8_t *) line);
-
-#if 0
-  LCD_DisplayStringLine(LINE(5), (uint8_t *) "Creating Tasks...");
+    LCD_DisplayStringLine(LINE(2), (uint8_t *) "   Camera Init..");
+    sprintf(line,"sys free: %ld", sysfree());
+    LCD_DisplayStringLine(LINE(3), (uint8_t *) line);
+    LCD_DisplayStringLine(LINE(5), (uint8_t *) "Creating Tasks...");
 
 
-  // Create a task
-  ret1 = xTaskCreate(test_FPU_test, "FPU", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
-  // Create the capture image/display loop
-  ret2 = xTaskCreate(capture_Loop, "CapLoop", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+    /* OV9655 Camera Module configuration */
+    if (DCMI_OV9655Config() == 0x00)
+    {
+        LCD_DisplayStringLine(LINE(2), (uint8_t *) "                ");
+        LCD_SetDisplayWindow(0, 0, 320, 240);
+        LCD_WriteRAM_Prepare();
 
-  if ((ret1 == pdTRUE) && (ret2 == pdTRUE))
-    vTaskStartScheduler();  // should never return
-  else
-  {
-	  // TODO: Indicate error startup.
-  }
-#endif
+        /* Start Image capture and Display on the LCD *****************************/
+        /* Enable DMA transfer */
+        DMA_Cmd(DMA2_Stream1, ENABLE);
 
-  capture_Loop(NULL);
+        /* Enable DCMI interface */
+        DCMI_Cmd(ENABLE);
 
-  while(1){} // We should not get here ...
+          /* Generate interrupts when DCMI captures a frame */
+        DCMI_ITConfig(DCMI_IT_FRAME, ENABLE);
 
-}
+        /* Create a binary semaphore as sync mechanism 
+         * before enabling the DCMI capture interrupt */
+        xSemaphore = xSemaphoreCreateBinary();
 
-#if 0
-void test_FPU_test(void* p)
-{
-    float ff = 1.0f;
-    printf("Start FPU test task.\n");
-    for (;;) {
-        float s = sinf(ff);
-        ff += s;
-        // TODO some other test
-        vTaskDelay(1000);
+        /* Start Image capture */
+        DCMI_CaptureCmd(ENABLE);
+
+        /*init the picture count*/
+        init_picture_count();
+
+        // Create the capture image/display loop
+        // ret = xTaskCreate(capture_Loop, "CapLoop", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+
+        ret = xTaskCreate(led_Monitor, "LedMonitor", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
     }
-    vTaskDelete(NULL);
+    else
+    {
+        LCD_SetTextColor(LCD_COLOR_RED);
+
+        LCD_DisplayStringLine(LINE(2), (uint8_t*)"Camera Init.. fails");
+        LCD_DisplayStringLine(LINE(4), (uint8_t*)"Check the Camera HW ");
+        LCD_DisplayStringLine(LINE(5), (uint8_t*)"  and try again ");
+
+    }
+
+    if (ret == pdTRUE)
+        vTaskStartScheduler();  // should never return
+
+    while(1){} // We should not get here ...
 
 }
-#endif
 
+void led_Monitor(void * p)
+{
+    while(1)
+    {
+        // this waits for the semaphore to be released
+        if (xSemaphoreTake( xSemaphore, portMAX_DELAY ) == pdTRUE )
+        {
+            // DCMI_CaptureCmd(DISABLE);
+            //
+            // CopyImageFromLCDRamToMemory();
+            // ProcessImage();
+
+            // LCD_SetDisplayWindow(0, 0, 320, 240);
+            // LCD_WriteRAM_Prepare();
+            // DCMI_CaptureCmd(ENABLE);
+
+            // STM_EVAL_LEDToggle(LED4);
+        }
+    }
+
+}
+
+/**
+ * brief Captures the image into BMP
+ * when the user button is pressed.
+ * @param None
+ * @retval None
+ */
 void capture_Loop(void * p)
 {
-	  /* OV9655 Camera Module configuration */
-	  if (DCMI_OV9655Config() == 0x00)
-	  {
-	    LCD_DisplayStringLine(LINE(2), (uint8_t *) "                ");
-	    LCD_SetDisplayWindow(0, 0, 320, 240);
-	    LCD_WriteRAM_Prepare();
+    KeyPressFlg = 0;
 
-	    /* Start Image capture and Display on the LCD *****************************/
-	    /* Enable DMA transfer */
-	    DMA_Cmd(DMA2_Stream1, ENABLE);
+    while (1)
+    {
+        /* Insert 100ms delay */
+        vTaskDelay(pdMS_TO_TICKS(100));
 
-	    /* Enable DCMI interface */
-	    DCMI_Cmd(ENABLE);
-
-	    /* Start Image capture */
-	    DCMI_CaptureCmd(ENABLE);
-
-	    /*init the picture count*/
-	    init_picture_count();
-
-	    KeyPressFlg = 0;
-	    while (1)
-	    {
-	      /* Insert 100ms delay */
-	      //vTaskDelay(pdMS_TO_TICKS(100));
-	      Delay(100);
-
-	      if (KeyPressFlg) {
-	        KeyPressFlg = 0;
-	        /* press user KEY take a photo */
-	        if (capture_Flag == ENABLE) {
-	          DCMI_CaptureCmd(DISABLE);
-	          capture_Flag = DISABLE;
-	          Capture_Image_TO_Bmp();
-	          LCD_SetDisplayWindow(0, 0, 320, 240);
-	          LCD_WriteRAM_Prepare();
-	          DCMI_CaptureCmd(ENABLE);
-	          capture_Flag = ENABLE;
-	        }
-	      }
-	    }
-	  } else
-	  {
-	    LCD_SetTextColor(LCD_COLOR_RED);
-
-	    LCD_DisplayStringLine(LINE(2), (uint8_t*)"Camera Init.. fails");
-	    LCD_DisplayStringLine(LINE(4), (uint8_t*)"Check the Camera HW ");
-	    LCD_DisplayStringLine(LINE(5), (uint8_t*)"  and try again ");
-	  }
+        if (KeyPressFlg) {
+            KeyPressFlg = 0;
+            /* press user KEY take a photo */
+            if (capture_Flag == ENABLE) {
+                DCMI_CaptureCmd(DISABLE);
+                capture_Flag = DISABLE;
+                Capture_Image_TO_Bmp();
+                LCD_SetDisplayWindow(0, 0, 320, 240);
+                LCD_WriteRAM_Prepare();
+                DCMI_CaptureCmd(ENABLE);
+                capture_Flag = ENABLE;
+            }
+        }
+    }
 }
+
 /**
   * @brief  Configures all needed resources (I2C, DCMI and DMA) to interface with
   *         the OV9655 camera module
@@ -256,52 +263,6 @@ uint8_t DCMI_OV9655Config(void)
   DCMI_Config();
   
   return (0x00);
-}
-
-/**
-  * @brief  Configures the I2C1 used for OV9655 camera module configuration.
-  * @param  None
-  * @retval None
-  */
-void I2C1_Config(void)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  I2C_InitTypeDef  I2C_InitStruct;
-
- /* I2C1 clock enable */
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
-  /* GPIOB clock enable */
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); 
-
-  /* Connect I2C1 pins to AF4 ************************************************/
-  GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
-  GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);  
-  
-  /* Configure I2C1 GPIOs *****************************************************/  
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;   
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-  /* Configure I2C1 ***********************************************************/  
-  /* I2C DeInit */   
-  I2C_DeInit(I2C1);
-    
-  /* Enable the I2C peripheral */
-  I2C_Cmd(I2C1, ENABLE);
- 
-  /* Set the I2C structure parameters */
-  I2C_InitStruct.I2C_Mode = I2C_Mode_I2C;
-  I2C_InitStruct.I2C_DutyCycle = I2C_DutyCycle_2;
-  I2C_InitStruct.I2C_OwnAddress1 = 0xFE;
-  I2C_InitStruct.I2C_Ack = I2C_Ack_Enable;
-  I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-  I2C_InitStruct.I2C_ClockSpeed = 30000;
-  
-  /* Initialize the I2C peripheral w/ selected parameters */
-  I2C_Init(I2C1, &I2C_InitStruct);
 }
 
 /**
@@ -398,57 +359,21 @@ void DCMI_Config(void)
   DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
      
   DMA_Init(DMA2_Stream1, &DMA_InitStructure);
+
+
+  /* Initialize interrupt on transfer complete */
+  NVIC_InitTypeDef NVIC_InitStructure;
+  /* Enable DMA2 Stream 1 IRQ Channel */
+  NVIC_InitStructure.NVIC_IRQChannel = DMA2_Stream1_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  
 }
 
 
-#if 0
-/**
-
-  * @brief  
-  * @param  None
-  * @retval None
-  */
-void LIS302DL_Reset(void)
-{
-  uint8_t ctrl = 0;
-  
-  LIS302DL_InitTypeDef  LIS302DL_InitStruct;
-  LIS302DL_InterruptConfigTypeDef LIS302DL_InterruptStruct;  
-  
-  /* Set configuration of LIS302DL*/
-  LIS302DL_InitStruct.Power_Mode = LIS302DL_LOWPOWERMODE_ACTIVE;
-  LIS302DL_InitStruct.Output_DataRate = LIS302DL_DATARATE_100;
-  LIS302DL_InitStruct.Axes_Enable = LIS302DL_X_ENABLE | LIS302DL_Y_ENABLE | LIS302DL_Z_ENABLE;
-  LIS302DL_InitStruct.Full_Scale = LIS302DL_FULLSCALE_2_3;
-  LIS302DL_InitStruct.Self_Test = LIS302DL_SELFTEST_NORMAL;
-  LIS302DL_Init(&LIS302DL_InitStruct);
-    
-  /* Set configuration of Internal High Pass Filter of LIS302DL*/
-  LIS302DL_InterruptStruct.Latch_Request = LIS302DL_INTERRUPTREQUEST_LATCHED;
-  LIS302DL_InterruptStruct.SingleClick_Axes = LIS302DL_CLICKINTERRUPT_Z_ENABLE;
-  LIS302DL_InterruptStruct.DoubleClick_Axes = LIS302DL_DOUBLECLICKINTERRUPT_Z_ENABLE;
-  LIS302DL_InterruptConfig(&LIS302DL_InterruptStruct);
-
-  /* Required delay for the MEMS Accelerometre: Turn-on time = 3/Output data Rate 
-                                                             = 3/100 = 30ms */
-  Delay(30);
-  
-  /* Configure Click Window */
-  ctrl = 0xC0;
-  LIS302DL_Write(&ctrl, LIS302DL_CLICK_CTRL_REG3_ADDR, 1);
-}
-
-/**
-  * @brief  MEMS accelerometre management of the timeout situation.
-  * @param  None.
-  * @retval None.
-  */
-uint32_t LIS302DL_TIMEOUT_UserCallback(void)
-{
-  /* MEMS Accelerometer Timeout error occured */
-  while (1) ;
-}
-#endif
  
 /**
   * @brief  Configures EXTI Line0 (connected to PA0 pin) in interrupt mode
@@ -484,7 +409,7 @@ void EXTILine0_Config(void)
 
   /* Enable and set EXTI Line0 Interrupt to the lowest priority */
   NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
@@ -497,68 +422,38 @@ void EXTILine0_Config(void)
   */
 void Delay(uint32_t nTime)
 {
-  TimingDelay = nTime;
+  // TimingDelay = nTime;
 
-  while (TimingDelay != 0);
+  //while (TimingDelay != 0);
+  vTaskDelay(pdMS_TO_TICKS(nTime));
 
 }
 
 /**
-
-  * @brief  Decrements the TimingDelay variable.
-  * @param  None
-  * @retval None
-  */
-void TimingDelay_Decrement(void)
+ * brief Called from a DCMI ISR when a frame of image
+ * is transferred
+ * @param None
+ * @return None
+ */
+void DCMI_IT_FrameHandler(void)
 {
-  if (TimingDelay != 0x00)
-  { 
-    TimingDelay--;
-  }
+    // counter used to increment 0 - 255
+    static unsigned char ucLocalTickCount = 0;
+
+    /* Is it time for vATask() to run? */
+    ucLocalTickCount++;
+    if( ucLocalTickCount >= FRAMES_TO_SKIP )
+    {
+        /* Unblock the task by releasing the semaphore. */
+        xSemaphoreGiveFromISR( xSemaphore, NULL );
+
+        /* Reset the count so we release the semaphore again in 10 ticks
+         *         time. */
+        ucLocalTickCount = 0;
+    }
 }
 
-// FreeRTOS hooks
-#if 0
-void vApplicationTickHook(void) {
-}
 
-/* vApplicationMallocFailedHook() will only be called if
- * configUSE_MALLOC_FAILED_HOOK is set to 1 in FreeRTOSConfig.h.  It is a hook
- * function that will get called if a call to pvPortMalloc() fails.
- * pvPortMalloc() is called internally by the kernel whenever a task, queue,
- * timer or semaphore is created.  It is also called by various parts of the
- * demo application.  If heap_1.c or heap_2.c are used, then the size of the
- * heap available to pvPortMalloc() is defined by configTOTAL_HEAP_SIZE in
- * FreeRTOSConfig.h, and the xPortGetFreeHeapSize() API function can be used
- * to query the size of free heap space that remains (although it does not
- * provide information on how the remaining heap might be fragmented). */
-void vApplicationMallocFailedHook(void) {
-      taskDISABLE_INTERRUPTS();
-        for(;;);
-}
-
-/* vApplicationIdleHook() will only be called if configUSE_IDLE_HOOK is set
- * to 1 in FreeRTOSConfig.h.  It will be called on each iteration of the idle
- * task.  It is essential that code added to this hook function never attempts
- * to block in any way (for example, call xQueueReceive() with a block time
- * specified, or call vTaskDelay()).  If the application makes use of the
- * vTaskDelete() API function (as this demo application does) then it is also
- * important that vApplicationIdleHook() is permitted to return to its calling
- * function, because it is the responsibility of the idle task to clean up
- * memory allocated by the kernel to any task that has since been deleted. */
-void vApplicationIdleHook(void) {
-}
-
-void vApplicationStackOverflowHook(xTaskHandle pxTask, signed char *pcTaskName) {
-      (void) pcTaskName;
-        (void) pxTask;
-          /* Run time stack overflow checking is performed if
-           *      configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
-           *           function is called if a stack overflow is detected. */
-          taskDISABLE_INTERRUPTS();
-            for(;;);
-}
-#endif
 
 #ifdef  USE_FULL_ASSERT
 /**

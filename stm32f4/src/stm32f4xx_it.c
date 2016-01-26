@@ -61,8 +61,13 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 extern uint8_t KeyPressFlg;
+volatile uint32_t dma_complete = 0;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+extern void xPortSysTickHandler(void);
+extern void xPortPendSVHandler(void);
+extern void vPortSVCHandler(void);
+extern void DCMI_IT_FrameHandler(void);
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Exceptions Handlers                         */
@@ -136,6 +141,7 @@ void UsageFault_Handler(void)
   */
 void SVC_Handler(void)
 {
+    vPortSVCHandler();
 }
 
 /**
@@ -154,6 +160,7 @@ void DebugMon_Handler(void)
   */
 void PendSV_Handler(void)
 {
+    xPortPendSVHandler();
 }
 
 /**
@@ -163,7 +170,8 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-  TimingDelay_Decrement();
+  // TimingDelay_Decrement();
+  xPortSysTickHandler();
 }
 
 /******************************************************************************/
@@ -205,6 +213,36 @@ void EXTI0_IRQHandler(void)
     EXTI_ClearITPendingBit(EXTI_Line0);
 		KeyPressFlg = 1;
   }
+}
+
+/**
+ * @brief This function handles a DMA complete transfer interrupt.
+ * @param None
+ * @retval None
+ */
+void DMA2_Stream1_IRQHandler(void)
+{
+    if(DMA_GetITStatus(DMA2_Stream1, DMA_IT_TCIF1))
+    {
+        dma_complete = 1;
+        DMA_ClearITPendingBit(DMA2_Stream1, DMA_IT_TCIF1);
+    }
+}
+
+/**
+ * @brief This function handles DCMI Interrupt when a frame 
+ * is completed.
+ * @param None
+ * @retval None
+ */
+void DCMI_IRQHandler(void)
+{
+    if (DCMI_GetITStatus(DCMI_IT_FRAME))
+    {
+        // Frame complete
+        DCMI_IT_FrameHandler();
+        DCMI_ClearITPendingBit(DCMI_IT_FRAME);
+    }
 }
 
 /******************************************************************************/

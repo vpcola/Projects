@@ -51,7 +51,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define  TIMEOUT  2
+#define  TIMEOUT 1000 
 
 #define  CAMERA_RST_PIN			  GPIO_Pin_12	
 #define  CAMERA_RST_PORT		  GPIOD
@@ -64,6 +64,13 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+
+
+#ifdef USE_DELAY_INTERNAL
+#define nDelay(x) for(int i = 0; i < x; x++);
+#else
+#define nDelay(x)
+#endif
 
 /*
 ******************************************************************************
@@ -93,7 +100,7 @@ void DCMI_Control_IO_Init(void)
   GPIO_Init(CAMERA_RST_PORT, &GPIO_InitStructure);
   /*Reset camera*/
   GPIO_ResetBits(CAMERA_RST_PORT, CAMERA_RST_PIN);
-  Delay(10);
+  nDelay(10);
   GPIO_SetBits(CAMERA_RST_PORT, CAMERA_RST_PIN);
 
   /* camera PWR EN pin configuration */
@@ -125,305 +132,305 @@ void DCMI_OV9655_Reset(void)
   */
 void DCMI_OV9655_QVGASizeSetup(void)
 {  
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x00, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x01, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x02, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x03, 0x02);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x04, 0x03);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x09, 0x01);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x0b, 0x57);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x0e, 0x61);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x0f, 0x40);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x11, 0x01);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x12, 0x62);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x13, 0xc7);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x14, 0x3a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x16, 0x24);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x17, 0x18);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x18, 0x04);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x19, 0x01);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x1a, 0x81);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x1e, 0x00); /*0x20*/
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x24, 0x3c);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x25, 0x36);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x26, 0x72);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x27, 0x08);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x28, 0x08);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x29, 0x15);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x2a, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x2b, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x2c, 0x08);
-  Delay(TIMEOUT);
-  DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x32, 0x12);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
+  DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x32, 0x12); // 0x32, 0xa4 for half res
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x33, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x34, 0x3f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x35, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x36, 0x3a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x38, 0x72);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x39, 0x57);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x3a, 0xcc);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x3b, 0x04);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x3d, 0x99);
-  Delay(TIMEOUT);
-  DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x3e, 0x02); 
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
+  DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x3e, 0x02);  //0x3e, 0x0e for half res
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x3f, 0xc1);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x40, 0xc0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x41, 0x41);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x42, 0xc0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x43, 0x0a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x44, 0xf0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x45, 0x46);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x46, 0x62);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x47, 0x2a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x48, 0x3c);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4a, 0xfc);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4b, 0xfc);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4c, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4d, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4e, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4f, 0x98);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x50, 0x98);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x51, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x52, 0x28);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x53, 0x70);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x54, 0x98);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x58, 0x1a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x59, 0x85);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5a, 0xa9);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5b, 0x64);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5c, 0x84);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5d, 0x53);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5e, 0x0e);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5f, 0xf0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x60, 0xf0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x61, 0xf0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x62, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x63, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x64, 0x02);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x65, 0x20);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x66, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x69, 0x0a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x6b, 0x5a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x6c, 0x04);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x6d, 0x55);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x6e, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x6f, 0x9d);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x70, 0x21);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x71, 0x78);
-  Delay(TIMEOUT);
-  Delay(TIMEOUT);  
-  DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x72, 0x11); 
-  Delay(TIMEOUT);
-  Delay(TIMEOUT);
-  DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x73, 0x01);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
+  nDelay(TIMEOUT);  
+  DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x72, 0x11); // 0x72, 0x22 for half res
+  nDelay(TIMEOUT);
+  nDelay(TIMEOUT);
+  DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x73, 0x01); // 0x73, 0x02 for half res
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x74, 0x10); 
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x75, 0x10); 
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x76, 0x01);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x77, 0x02);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7A, 0x12);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7B, 0x08);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7C, 0x16);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7D, 0x30);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7E, 0x5e);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7F, 0x72);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x80, 0x82);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x81, 0x8e);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x82, 0x9a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x83, 0xa4);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x84, 0xac);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x85, 0xb8);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x86, 0xc3);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x87, 0xd6);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x88, 0xe6);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x89, 0xf2);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x8a, 0x24);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x8c, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x90, 0x7d);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x91, 0x7b);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x9d, 0x02);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x9e, 0x02);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x9f, 0x7a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa0, 0x79);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa1, 0x40);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa4, 0x50);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa5, 0x68);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa6, 0x4a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa8, 0xc1);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa9, 0xef);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xaa, 0x92);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xab, 0x04);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xac, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xad, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xae, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xaf, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb2, 0xf2);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb3, 0x20);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb4, 0x20);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb5, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb6, 0xaf);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb6, 0xaf);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbb, 0xae);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbc, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbd, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbe, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbf, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbf, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc0, 0xaa);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc1, 0xc0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc2, 0x01);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc3, 0x4e);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc6, 0x05);
-  Delay(TIMEOUT);
-  DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc7, 0x81);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
+  DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc7, 0x81); // 0xc7, 0x82 for half res
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc9, 0xe0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xca, 0xe8);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xcb, 0xf0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xcc, 0xd8);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xcd, 0x93);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
 }
 
 /**
@@ -433,303 +440,303 @@ void DCMI_OV9655_QVGASizeSetup(void)
   */
 void DCMI_OV9655_QQVGASizeSetup(void)
 {
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x00, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x01, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x02, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x03, 0x02);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x04, 0x03);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x09, 0x01);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x0b, 0x57);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x0e, 0x61);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x0f, 0x40);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x11, 0x01);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x12, 0x62);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x13, 0xc7);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x14, 0x3a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x16, 0x24);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x17, 0x18);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x18, 0x04);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x19, 0x01);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x1a, 0x81);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x1e, 0x20);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x24, 0x3c);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x25, 0x36);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x26, 0x72);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x27, 0x08);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x28, 0x08);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x29, 0x15);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x2a, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x2b, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x2c, 0x08);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x32, 0xa4);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x33, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x34, 0x3f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x35, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x36, 0x3a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x38, 0x72);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x39, 0x57);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x3a, 0xcc);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x3b, 0x04);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x3d, 0x99);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x3e, 0x0e); 
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x3f, 0xc1);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x40, 0xc0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x41, 0x41);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x42, 0xc0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x43, 0x0a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x44, 0xf0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x45, 0x46);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x46, 0x62);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x47, 0x2a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x48, 0x3c);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4a, 0xfc);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4b, 0xfc);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4c, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4d, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4e, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x4f, 0x98);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x50, 0x98);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x51, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x52, 0x28);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x53, 0x70);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x54, 0x98);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x58, 0x1a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x59, 0x85);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5a, 0xa9);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5b, 0x64);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5c, 0x84);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5d, 0x53);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5e, 0x0e);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x5f, 0xf0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x60, 0xf0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x61, 0xf0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x62, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x63, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x64, 0x02);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x65, 0x20);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x66, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x69, 0x0a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x6b, 0x5a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x6c, 0x04);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x6d, 0x55);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x6e, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x6f, 0x9d);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x70, 0x21);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x71, 0x78);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x72, 0x22); 
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x73, 0x02);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x74, 0x10);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x75, 0x10); 
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x76, 0x01);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x77, 0x02);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7A, 0x12);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7B, 0x08);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7C, 0x16);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7D, 0x30);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7E, 0x5e);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x7F, 0x72);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x80, 0x82);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x81, 0x8e);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x82, 0x9a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x83, 0xa4);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x84, 0xac);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x85, 0xb8);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x86, 0xc3);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x87, 0xd6);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x88, 0xe6);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x89, 0xf2);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x8a, 0x24);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x8c, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x90, 0x7d);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x91, 0x7b);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x9d, 0x02);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x9e, 0x02);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0x9f, 0x7a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa0, 0x79);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa1, 0x40);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa4, 0x50);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa5, 0x68);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa6, 0x4a);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa8, 0xc1);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xa9, 0xef);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xaa, 0x92);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xab, 0x04);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xac, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xad, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xae, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xaf, 0x80);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb2, 0xf2);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb3, 0x20);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb4, 0x20);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb5, 0x00);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb6, 0xaf);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xb6, 0xaf);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbb, 0xae);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbc, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbd, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbe, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbf, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xbf, 0x7f);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc0, 0xaa);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc1, 0xc0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc2, 0x01);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc3, 0x4e);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc6, 0x05);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc7, 0x82);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xc9, 0xe0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xca, 0xe8);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xcb, 0xf0);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xcc, 0xd8);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
   DCMI_SingleRandomWrite(OV9655_DEVICE_WRITE_ADDRESS,0xcd, 0x93);
-  Delay(TIMEOUT);
+  nDelay(TIMEOUT);
 }
 
 /**
@@ -843,7 +850,7 @@ uint8_t DCMI_SingleRandomWrite(uint8_t Device, uint16_t Addr, uint8_t Data)
   timeout = DCMI_TIMEOUT_MAX; /* Initialize timeout value */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT))
   {
-    /* If the timeout delay is exeeded, exit with error code */
+    /* If the timeout nDelay is exeeded, exit with error code */
     if ((timeout--) == 0) return 0xFF;
   }
    
@@ -854,7 +861,7 @@ uint8_t DCMI_SingleRandomWrite(uint8_t Device, uint16_t Addr, uint8_t Data)
   timeout = DCMI_TIMEOUT_MAX; /* Initialize timeout value */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
   {
-    /* If the timeout delay is exeeded, exit with error code */
+    /* If the timeout nDelay is exeeded, exit with error code */
     if ((timeout--) == 0) return 0xFF;
   }
  
@@ -865,7 +872,7 @@ uint8_t DCMI_SingleRandomWrite(uint8_t Device, uint16_t Addr, uint8_t Data)
   timeout = DCMI_TIMEOUT_MAX; /* Initialize timeout value */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED))
   {
-    /* If the timeout delay is exeeded, exit with error code */
+    /* If the timeout nDelay is exeeded, exit with error code */
     if ((timeout--) == 0) return 0xFF;
   }
   
@@ -876,7 +883,7 @@ uint8_t DCMI_SingleRandomWrite(uint8_t Device, uint16_t Addr, uint8_t Data)
   timeout = DCMI_TIMEOUT_MAX; /* Initialize timeout value */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED))
   {
-    /* If the timeout delay is exeeded, exit with error code */
+    /* If the timeout nDelay is exeeded, exit with error code */
     if ((timeout--) == 0) return 0xFF;
   }  
  
@@ -906,7 +913,7 @@ uint8_t DCMI_SingleRandomRead(uint8_t Device, uint16_t Addr)
   timeout = DCMI_TIMEOUT_MAX; /* Initialize timeout value */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT))
   {
-    /* If the timeout delay is exeeded, exit with error code */
+    /* If the timeout nDelay is exeeded, exit with error code */
     if ((timeout--) == 0) return 0xFF;
   } 
   
@@ -917,7 +924,7 @@ uint8_t DCMI_SingleRandomRead(uint8_t Device, uint16_t Addr)
   timeout = DCMI_TIMEOUT_MAX; /* Initialize timeout value */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
   {
-    /* If the timeout delay is exeeded, exit with error code */
+    /* If the timeout nDelay is exeeded, exit with error code */
     if ((timeout--) == 0) return 0xFF;
   } 
 
@@ -928,7 +935,7 @@ uint8_t DCMI_SingleRandomRead(uint8_t Device, uint16_t Addr)
   timeout = DCMI_TIMEOUT_MAX; /* Initialize timeout value */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED))
   {
-    /* If the timeout delay is exeeded, exit with error code */
+    /* If the timeout nDelay is exeeded, exit with error code */
     if ((timeout--) == 0) return 0xFF;
   } 
   
@@ -942,7 +949,7 @@ uint8_t DCMI_SingleRandomRead(uint8_t Device, uint16_t Addr)
   timeout = DCMI_TIMEOUT_MAX; /* Initialize timeout value */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT))
   {
-    /* If the timeout delay is exeeded, exit with error code */
+    /* If the timeout nDelay is exeeded, exit with error code */
     if ((timeout--) == 0) return 0xFF;
   } 
   
@@ -953,7 +960,7 @@ uint8_t DCMI_SingleRandomRead(uint8_t Device, uint16_t Addr)
   timeout = DCMI_TIMEOUT_MAX; /* Initialize timeout value */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))
   {
-    /* If the timeout delay is exeeded, exit with error code */
+    /* If the timeout nDelay is exeeded, exit with error code */
     if ((timeout--) == 0) return 0xFF;
   }  
  
@@ -964,7 +971,7 @@ uint8_t DCMI_SingleRandomRead(uint8_t Device, uint16_t Addr)
   timeout = DCMI_TIMEOUT_MAX; /* Initialize timeout value */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED))
   {
-    /* If the timeout delay is exeeded, exit with error code */
+    /* If the timeout nDelay is exeeded, exit with error code */
     if ((timeout--) == 0) return 0xFF;
   }   
     
